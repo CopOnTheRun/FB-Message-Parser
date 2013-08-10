@@ -10,9 +10,11 @@ class FbMsg(object):
         soup = b(open(fileName))
         for x in soup.find_all(class_='thread'):
             self.threads.append(Thread(x))
-    
-    def __getitem__(self, key):
-        return self.threads[key]
+
+    def __getitem__(self, key): return self.threads[key]
+
+    def __repr__(self):
+    	return '<FbMsg len(threads)={}>'.format(len(self.threads))
 
 
 class Thread(object):
@@ -23,15 +25,14 @@ class Thread(object):
         self.messages=[]
         for x in threadDiv.find_all(class_='message'):
             self.messages.append(Message(x,x.next_sibling))
-    
-    def __getitem__(self, key):
-        return self.messages[key]
 
-    def __str__(self):
-        return '\nA conversation between {}\n{}\n{}'.format(self.people,self.messages,'~'*79)
+    def __getitem__(self, key): return self.messages[key]
 
     def __repr__(self):
-        return '\nA conversation between {}\n{}\n{}'.format(self.people,self.messages,'~'*79)
+        return '<Thread people={}, len(messages)={}>'.format(self.people,len(self.messages))
+
+    def __str__(self):
+        return '{}\n{}\n'.format(self.people,self.messages)
 
 
 class Message(object):
@@ -43,8 +44,8 @@ class Message(object):
         dtFormat = '%A, %B %d, %Y at %I:%M%p %Z'
         self.date_time = dt.datetime.strptime(messDiv.find(class_='meta').string,dtFormat)
 
-    def __str__(self):
-        return 'On {} {} said: {}'.format(self.date_time,self.sender,self.text)
-
     def __repr__(self):
-        return '\n{}\n{}\n{}'.format(self.date_time,self.sender,self.text)
+        return '<Message date_time={} sender={} text={}'.format(self.date_time,self.sender,self.text)
+
+    def __str__(self):
+        return '{}\n{}\n{}\n'.format(self.sender,self.date_time,self.text)
