@@ -1,4 +1,6 @@
 from bs4 import BeautifulSoup as b
+import datetime as dt
+
 
 class FbMsg(object):
     """Contains a list of Threads"""
@@ -11,6 +13,7 @@ class FbMsg(object):
     
     def __getitem__(self, key):
         return self.threads[key]
+
 
 class Thread(object):
     """Contains a list of messages, as well as participants"""
@@ -30,16 +33,18 @@ class Thread(object):
     def __repr__(self):
         return '\nA conversation between {}\n{}\n{}'.format(self.people,self.messages,'~'*79)
 
+
 class Message(object):
     """Contains the message text, sender, and date/time"""
 
     def __init__(self,messDiv,pDiv):
         self.text = pDiv.string
         self.sender = messDiv.find(class_='user').string
-        self.timeDate = messDiv.find(class_='meta').string
-        
+        dtFormat = '%A, %B %d, %Y at %I:%M%p %Z'
+        self.date_time = dt.datetime.strptime(messDiv.find(class_='meta').string,dtFormat)
 
     def __str__(self):
-        return 'On {} {} said: {}'.format(self.timeDate,self.sender,self.text)
+        return 'On {} {} said: {}'.format(self.date_time,self.sender,self.text)
+
     def __repr__(self):
-        return '\n{}\n{}\n{}'.format(self.timeDate,self.sender,self.text)
+        return '\n{}\n{}\n{}'.format(self.date_time,self.sender,self.text)
