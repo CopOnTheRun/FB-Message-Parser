@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup as b
-import datetime as dt
+from datetime import datetime as dt
 
 
 class FbMsg(object):
@@ -13,8 +13,9 @@ class FbMsg(object):
 
     def __getitem__(self, key): return self.threads[key]
 
-    def __repr__(self):
-    	return '<FbMsg len(threads)={}>'.format(len(self.threads))
+    def __repr__(self):	return '<FbMsg len(threads)={}>'.format(len(self.threads))
+
+    def __len__(self): return len(self.threads)
 
 
 class Thread(object):
@@ -28,11 +29,11 @@ class Thread(object):
 
     def __getitem__(self, key): return self.messages[key]
 
-    def __repr__(self):
-        return '<Thread people={}, len(messages)={}>'.format(self.people,len(self.messages))
+    def __repr__(self): return '<Thread people={}, len(messages)={}>'.format(self.people,len(self.messages))
 
-    def __str__(self):
-        return '{}\n{}\n'.format(self.people,self.messages)
+    def __str__(self): return '{}\n{}\n'.format(self.people,self.messages)
+    
+    def __len__(self): return len(self.messages)
 
 
 class Message(object):
@@ -42,10 +43,8 @@ class Message(object):
         self.text = pDiv.string
         self.sender = messDiv.find(class_='user').string
         dtFormat = '%A, %B %d, %Y at %I:%M%p %Z'
-        self.date_time = dt.datetime.strptime(messDiv.find(class_='meta').string,dtFormat)
+        self.date_time = dt.strptime(messDiv.find(class_='meta').string,dtFormat)
 
-    def __repr__(self):
-        return '<Message date_time={} sender={} text={}'.format(self.date_time,self.sender,self.text)
+    def __repr__(self): return '<Message date_time={} sender={} text={}'.format(self.date_time,self.sender,self.text)
 
-    def __str__(self):
-        return '{}\n{}\n{}\n'.format(self.sender,self.date_time,self.text)
+    def __str__(self): return '{}\n{}\n{}\n'.format(self.sender,self.date_time,self.text)
