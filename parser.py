@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup as b
 from datetime import datetime as dt
 
 
-class FbMsg(object):
+class FbChat(object):
     """Contains a list of Threads"""
 
     def __init__(self, fileName):
@@ -16,6 +16,15 @@ class FbMsg(object):
     def __repr__(self):	return '<FbMsg len(threads)={}>'.format(len(self.threads))
 
     def __len__(self): return len(self.threads)
+    
+    def by(self, name):
+        return [m for t in self if name in t.people for m in t.by(name)]
+
+    def sentBefore(self, date):
+        return [y for x in self for y in x.sentBefore(date)]
+
+    def sentAfter(self, date):
+        return [y for x in self for y in x.sentAfter(date)]
 
 
 class Thread(object):
@@ -35,6 +44,15 @@ class Thread(object):
     
     def __len__(self): return len(self.messages)
 
+    def by (self, name):
+        return [x for x in self if x.sender == name]
+    
+    def sentBefore(self,date):
+        return [x for x in self if x.date_time < date]
+
+    def sentAfter(self,date):
+        return [x for x in self if x.date_time > date]
+
 
 class Message(object):
     """Contains the message text, sender, and date/time"""
@@ -42,7 +60,7 @@ class Message(object):
     def __init__(self,messDiv,pDiv):
         self.text = pDiv.string
         self.sender = messDiv.find(class_='user').string
-        dtFormat = '%A, %B %d, %Y at %I:%M%p %Z'
+        dtFormat = '%A, %B %d, %Y at %I:%M%p %Z' #timezone (%Z) doesn't actually carry over
         self.date_time = dt.strptime(messDiv.find(class_='meta').string,dtFormat)
 
     def __repr__(self): return '<Message date_time={} sender={} text={}'.format(self.date_time,self.sender,self.text)
