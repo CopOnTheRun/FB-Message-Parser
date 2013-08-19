@@ -3,26 +3,26 @@ from datetime import datetime as dt
 
 
 def htmlToPy(fileName):
-	soup = b(open(fileName))
-	dtFormat = '%A, %B %d, %Y at %I:%M%p %Z'
-	chatList = []
-	for x in soup.find_all(class_='thread'):
-		threadList = []
-		for y in x.find_all(class_='message'):
-			threadList.append(
-				Message(
-					y.find(class_='user').string,
-					dt.strptime(y.find(class_='meta').string,dtFormat),
-					y.next_sibling.string
-				)
-			)
-		chatList.append(
-			Thread(
-				set(x.next_element.split(', ')),
-				threadList
-			)
-		)
-	return FbChat(chatList)
+    soup = b(open(fileName))
+    dtFormat = '%A, %B %d, %Y at %I:%M%p %Z'
+    chatList = []
+    for x in soup.find_all(class_='thread'):
+        threadList = []
+        for y in x.find_all(class_='message'):
+            threadList.append(
+                Message(
+                    y.find(class_='user').string,
+                    dt.strptime(y.find(class_='meta').string,dtFormat),
+                    y.next_sibling.string
+                )
+            )
+        chatList.append(
+            Thread(
+                set(x.next_element.split(', ')),
+                threadList
+            )
+        )
+    return FbChat(chatList)
 
 
 class FbChat(object):
@@ -33,7 +33,7 @@ class FbChat(object):
 
     def __getitem__(self, key): return self.threads[key]
 
-    def __repr__(self):	return '<FbMsg len(threads)={}>'.format(len(self.threads))
+    def __repr__(self): return '<FbMsg len(threads)={}>'.format(len(self.threads))
 
     def __len__(self): return len(self.threads)
 
