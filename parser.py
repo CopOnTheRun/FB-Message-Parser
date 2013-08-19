@@ -38,21 +38,25 @@ class FbChat(object):
     def __len__(self): return len(self.threads)
 
     def by(self, name):
-        return [m for t in self if name in t.people for m in t.by(name)]
+        return [msg for thread in self if name in thread.participants for msg in thread.by(name)]
 
     def sentBefore(self, date):
-        return [y for x in self for y in x.sentBefore(date)]
+        return [msg for thread in self for msg in thread.sentBefore(date)]
 
     def sentAfter(self, date):
-        return [y for x in self for y in x.sentAfter(date)]
+        return [msg for thread in self for msg in thread.sentAfter(date)]
+
+    def sentBetween(self,beg,end):
+        return [msg for thread in self for msg in thread.sentBetween(beg,end)]
 
 
 class Thread(object):
     """Contains a list of messages, as well as participants"""
 
     def __init__(self,people,messages):
-        self.people = people
+        self.people = people #included in conversation
         self.messages= messages
+        self.participants = {msg.sender for msg in messages} #included, and participated
 
     def __getitem__(self, key): return self.messages[key]
 
@@ -63,13 +67,16 @@ class Thread(object):
     def __len__(self): return len(self.messages)
 
     def by (self, name):
-        return [x for x in self if x.sender == name]
+        return [msg for msg in self if msg.sender == name]
 
     def sentBefore(self,date):
-        return [x for x in self if x.date_time < date]
+        return [msg for msg in self if msg.date_time < date]
 
     def sentAfter(self,date):
-        return [x for x in self if x.date_time > date]
+        return [msg for msg in self if msg.date_time > date]
+
+    def sentBetween(self,beg,end):
+        return [msg for msg in self.sentAfter(beg) if msg.date_time < end]
 
 
 class Message(object):
