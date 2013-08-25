@@ -30,7 +30,8 @@ class FbChat(object):
 
     def __init__(self, threads):
         self.threads = threads
-        self.personDict = {person:self.by(person) for person in{ppl for thread in self for ppl in thread.people}}
+        self.personDict = {person:self.__by(person) for person in{ppl for thread in self for ppl in thread.people}}
+        self.messages = sorted([y for x in self.threads for y in x])
 
     def __getitem__(self, key):
         if type(key) is int: return self.threads[key]
@@ -40,8 +41,8 @@ class FbChat(object):
 
     def __len__(self): return len(self.threads)
 
-    def by(self, name):
-        return [msg for thread in self if name in thread.people for msg in thread.by(name)]
+    def __by(self, name): #returns a date-sorted list of messages sent by "name"
+        return sorted([msg for thread in self if name in thread.people for msg in thread.by(name)])
 
     def sentBefore(self, date):
         return [msg for thread in self for msg in thread.sentBefore(date)]
@@ -92,6 +93,15 @@ class Message(object):
     def __repr__(self): return '<Message date_time={} sender={} text={}'.format(self.date_time,self.sender,self.text)
 
     def __str__(self): return '{}\n{}\n{}\n'.format(self.sender,self.date_time,self.text)
+
+    def __lt__(self,date):
+    	return self.sentBefore(date)
+
+    def __gt__(self, date):
+    	return self.sentAfter(date)
+
+    def __eq__(self,date):
+    	return self.date_time == date
 
     def sentBy(self,name):
         return self.sender == name
