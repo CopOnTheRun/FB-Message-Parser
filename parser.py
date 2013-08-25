@@ -30,15 +30,18 @@ class FbChat(object):
 
     def __init__(self, threads):
         self.threads = threads
+        self.personDict = {person:self.by(person) for person in{ppl for thread in self for ppl in thread.people}}
 
-    def __getitem__(self, key): return self.threads[key]
+    def __getitem__(self, key):
+        if type(key) is int: return self.threads[key]
+        elif type(key) is str: return self.personDict[key]
 
-    def __repr__(self): return '<FbMsg len(threads)={}>'.format(len(self.threads))
+    def __repr__(self): return '<FbMsg len(threads)={}>'.format(len(self))
 
     def __len__(self): return len(self.threads)
 
     def by(self, name):
-        return [msg for thread in self if name in thread.participants for msg in thread.by(name)]
+        return [msg for thread in self if name in thread.people for msg in thread.by(name)]
 
     def sentBefore(self, date):
         return [msg for thread in self for msg in thread.sentBefore(date)]
@@ -51,12 +54,11 @@ class FbChat(object):
 
 
 class Thread(object):
-    """Contains a list of messages, as well as participants"""
+    """Contains a list of people included, and messages """
 
     def __init__(self,people,messages):
-        self.people = people #included in conversation
+        self.people = people
         self.messages= messages
-        self.participants = {msg.sender for msg in messages} #included, and participated
 
     def __getitem__(self, key): return self.messages[key]
 
@@ -67,16 +69,16 @@ class Thread(object):
     def __len__(self): return len(self.messages)
 
     def by (self, name):
-        return [msg for msg in self if msg.sender == name]
+        return [msg for msg in self if msg.sentBy(name)]
 
     def sentBefore(self,date):
-        return [msg for msg in self if msg.date_time < date]
+        return [msg for msg in self if msg.sentBefore(date)]
 
     def sentAfter(self,date):
-        return [msg for msg in self if msg.date_time > date]
+        return [msg for msg in self if msg.sentAfter(date)]
 
     def sentBetween(self,beg,end):
-        return [msg for msg in self.sentAfter(beg) if msg.date_time < end]
+        return [msg for msg in self if msg.sentBetween(beg,end)]
 
 
 class Message(object):
@@ -90,3 +92,15 @@ class Message(object):
     def __repr__(self): return '<Message date_time={} sender={} text={}'.format(self.date_time,self.sender,self.text)
 
     def __str__(self): return '{}\n{}\n{}\n'.format(self.sender,self.date_time,self.text)
+
+    def sentBy(self,name):
+        return self.sender == name
+
+    def sentBefore(self,date):
+        return self.date_time < date
+
+    def sentAfter(self,date):
+        return self.date_time > date
+
+    def sentBetween(self,beg,end):
+        return self.date_time > beg and self.date_time < end
