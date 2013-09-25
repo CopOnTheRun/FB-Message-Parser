@@ -1,10 +1,9 @@
 from bs4 import BeautifulSoup as b
 from datetime import datetime as dt
 
-
-def htmlToPy(fileName):
-    soup = b(open(fileName))
-    dtFormat = '%A, %B %d, %Y at %I:%M%p %Z'
+dtFormat = '%A, %B %d, %Y at %I:%M%p %Z'
+def htmlToPy(file):
+    soup = b(file)
     chatList = []
     for x in soup.find_all(class_='thread'):
         threadList = []
@@ -24,6 +23,21 @@ def htmlToPy(fileName):
         )
     return FbChat(chatList)
 
+def pyToJson(pyObj):
+    if isinstance(pyObj, FbChat):
+        return {'threads':pyObj.threads}
+    elif isinstance(pyObj, Thread):
+        return {'people':pyObj.people,
+                'messages':pyObj.messages}
+    elif isinstance(pyObj, Message):
+        return {'sender':pyObj.sender,
+                'date_time':pyObj.date_time,
+                'text':pyObj.text}
+    elif isinstance(pyObj, dt):
+        return pyObj.strftime(dtFormat)
+    elif isinstance(pyObj, set):
+        return list(pyObj)
+    raise TypeError('{} is not JSON serializable'.format(repr(pyObj)))
 
 class FbChat(object):
     """Contains a list of Threads"""
