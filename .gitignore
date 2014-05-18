@@ -1,2 +1,5 @@
 messages.htm
+messages.pickle
+messages.json
+.idea/
 __pycache__/
