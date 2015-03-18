@@ -1,57 +1,68 @@
-from bs4 import BeautifulSoup as bs
+import json
+import pickle
 from datetime import datetime as dt
-import pickle, json
+
+from bs4 import BeautifulSoup as bs
+
 import fb_chat
 
+
 dtFormat = '%A, %B %d, %Y at %I:%M%p %Z'
-def htmlToPy(file):
+
+
+def html_to_py(file):
     soup = bs(file)
-    chatList = []
+    chat_list = []
     for x in soup.find_all(class_='thread'):
-        threadList = []
+        thread_list = []
         for y in x.find_all(class_='message'):
-            threadList.append(
+            thread_list.append(
                 fb_chat.Message(
                     str(y.find(class_='user').string),
-                    dt.strptime(y.find(class_='meta').string,dtFormat),
+                    dt.strptime(y.find(class_='meta').string, dtFormat),
                     str(y.next_sibling.string)
                 )
             )
-        chatList.append(
+        chat_list.append(
             fb_chat.Thread(
                 set(x.next_element.split(', ')),
-                threadList
+                thread_list
             )
         )
-    return fb_chat.Chat(chatList)
+    return fb_chat.Chat(chat_list)
 
-def jsonEncode(pyObj):
-    '''This is the method to be passed into the 'default' argument of json.dump.'''
 
-    if isinstance(pyObj, fb_chat.Chat):
-        return {'threads':pyObj.threads}
-    elif isinstance(pyObj, fb_chat.Thread):
-        return {'messages':pyObj.messages,
-                'people':pyObj.people}
-    elif isinstance(pyObj, fb_chat.Message):
-        return {'text':pyObj.text,
-                'date_time':pyObj.date_time,
-                'sender':pyObj.sender}
-    elif isinstance(pyObj, dt):
-        return pyObj.strftime(dtFormat)
-    elif isinstance(pyObj, set):
-        return list(pyObj)
-    raise TypeError('{} is not JSON serializable'.format(repr(pyObj)))
+def json_encode(py_obj):
+    """This is the method to be passed into the 'default' argument
+    of json.dump."""
 
-def pyToJson(pyObj,name='messages.json'):
-	with open(name,'w') as f:
-		json.dump(pyObj,f,default=jsonEncode,indent=2)
+    if isinstance(py_obj, fb_chat.Chat):
+        return {'threads': py_obj.threads}
+    elif isinstance(py_obj, fb_chat.Thread):
+        return {'messages': py_obj.messages,
+                'people': py_obj.people}
+    elif isinstance(py_obj, fb_chat.Message):
+        return {'text': py_obj.text,
+                'date_time': py_obj.date_time,
+                'sender': py_obj.sender}
+    elif isinstance(py_obj, dt):
+        return py_obj.strftime(dtFormat)
+    elif isinstance(py_obj, set):
+        return list(py_obj)
+    raise TypeError('{} is not JSON serializable'.format(repr(py_obj)))
 
-def pyToPickle(pyObj,name='messages.pickle'):
-	'''This method will picklize our python object for easy access later'''
-	with open(name,'wb') as f:
-		pickle.dump(pyObj,f)
 
-def pickleToPy(name='messages.pickle'):
-	with open(name,'rb') as f:
-		return pickle.load(f)
+def py_to_json(py_obj, name='messages.json'):
+    with open(name, 'w') as f:
+        json.dump(py_obj, f, default=json_encode, indent=2)
+
+
+def py_to_pickle(py_obj, name='messages.pickle'):
+    """ This method will picklize our python object for easy access later """
+    with open(name, 'wb') as f:
+        pickle.dump(py_obj, f)
+
+
+def pickle_to_py(name='messages.pickle'):
+    with open(name, 'rb') as f:
+        return pickle.load(f)
