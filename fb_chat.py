@@ -76,14 +76,14 @@ class Message(object):
     def __str__(self):
         return '{}\n{}\n{}\n'.format(self.sender, self.date_time, self.text)
 
-    def __lt__(self, date):
-        return self.sent_before(date)
+    def __lt__(self, message):
+        return self.sent_before(message.date_time)
 
-    def __gt__(self, date):
-        return self.sent_after(date)
+    def __gt__(self, message):
+        return self.sent_after(message.date_time)
 
-    def __eq__(self, date):
-        return self.date_time == date
+    def __eq__(self, message):
+        return self.date_time == message.date_time
 
     def sent_by(self, name):
         return self.sender == name

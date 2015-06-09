@@ -7,8 +7,8 @@ from bs4 import BeautifulSoup as bs
 import fb_chat
 
 
-dtFormat = '%A, %B %d, %Y at %I:%M%p %Z'
-
+#dtFormat = '%A, %B %d, %Y at %I:%M%p %Z'
+dtFormat = '%A, %d %B %Y at %H:%M %Z'  # UK Format
 
 def html_to_py(file):
     soup = bs(file)
@@ -18,9 +18,10 @@ def html_to_py(file):
         for y in x.find_all(class_='message'):
             thread_list.append(
                 fb_chat.Message(
-                    str(y.find(class_='user').string),
-                    dt.strptime(y.find(class_='meta').string, dtFormat),
-                    str(y.next_sibling.string)
+                    y.find(class_='user').string,
+                    # Remove "+01" in some dates, to just use BST timezone:
+                    dt.strptime(y.find(class_='meta').string.replace("+01", ""), dtFormat),
+                    y.next_sibling.string
                 )
             )
         chat_list.append(
@@ -66,3 +67,10 @@ def py_to_pickle(py_obj, name='messages.pickle'):
 def pickle_to_py(name='messages.pickle'):
     with open(name, 'rb') as f:
         return pickle.load(f)
+
+if __name__ == "__main__":
+    # So long as "messages.htm" in same directory: runs automatically
+    with open('messages.htm', "r") as f:
+        Chat = html_to_py(f)
+        # Dump to json to prove works:
+        py_to_json(Chat)
