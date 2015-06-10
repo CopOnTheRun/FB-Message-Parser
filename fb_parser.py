@@ -18,10 +18,10 @@ def html_to_py(file):
         for y in x.find_all(class_='message'):
             thread_list.append(
                 fb_chat.Message(
-                    y.find(class_='user').string,
+                    unicode(y.find(class_='user').string),
                     # Remove "+01" in some dates, to just use BST timezone:
                     dt.strptime(y.find(class_='meta').string.replace("+01", ""), dtFormat),
-                    y.next_sibling.string
+                    unicode(y.next_sibling.string)
                 )
             )
         chat_list.append(
