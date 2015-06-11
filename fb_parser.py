@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import json
 import pickle
 from datetime import datetime as dt
@@ -7,8 +9,8 @@ from bs4 import BeautifulSoup as bs
 import fb_chat
 
 
-#dtFormat = '%A, %B %d, %Y at %I:%M%p %Z'
-dtFormat = '%A, %d %B %Y at %H:%M %Z'  # UK Format
+dtFormat = '%A, %B %d, %Y at %I:%M%p %Z'
+#dtFormat = '%A, %d %B %Y at %H:%M %Z'  # UK Format
 
 def html_to_py(file):
     soup = bs(file)
@@ -18,10 +20,10 @@ def html_to_py(file):
         for y in x.find_all(class_='message'):
             thread_list.append(
                 fb_chat.Message(
-                    unicode(y.find(class_='user').string),
+                    str(y.find(class_='user').string),
                     # Remove "+01" in some dates, to just use BST timezone:
                     dt.strptime(y.find(class_='meta').string.replace("+01", ""), dtFormat),
-                    unicode(y.next_sibling.string)
+                    str(y.next_sibling.string)
                 )
             )
         chat_list.append(
@@ -71,6 +73,6 @@ def pickle_to_py(name='messages.pickle'):
 if __name__ == "__main__":
     # So long as "messages.htm" in same directory: runs automatically
     with open('messages.htm', "r") as f:
-        Chat = html_to_py(f)
+        chat = html_to_py(f)
         # Dump to json to prove works:
-        py_to_json(Chat)
+        py_to_json(chat)

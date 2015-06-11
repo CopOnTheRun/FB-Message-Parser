@@ -89,10 +89,16 @@ class Message(object):
         return self.sender == name
 
     def sent_before(self,date):
-        return self.date_time < date
+        try:
+            return self.date_time < date
+        except TypeError:
+            return self.date_time.date() < date
 
     def sent_after(self,date):
-        return self.date_time > date
+        try:
+            return self.date_time > date
+        except TypeError:
+            return self.date_time.date() > date
 
     def sent_between(self, beg, end):
-        return beg < self.date_time < end
+        return self.sent_after(beg) and self.sent_before(end)
